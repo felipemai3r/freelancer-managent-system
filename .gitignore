@@ -1,0 +1,36 @@
+# ===== BACKEND =====
+backend/target/
+backend/*.log
+backend/logs/
+backend/uploads/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# ===== FRONTEND (quando criar) =====
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+# ===== DOCKER =====
+.env
+*.env.local
+
+# ===== DATABASE =====
+*.sql.backup
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== LOGS =====
+*.log
+logs/

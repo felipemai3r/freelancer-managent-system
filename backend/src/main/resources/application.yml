@@ -1,0 +1,149 @@
+# =====================================================
+# CONFIGURAÇÃO DO SPRING BOOT
+# Sistema de Gestão de Freelancers
+# =====================================================
+
+spring:
+  application:
+    name: freelancer-management-system
+
+  # ===== DATASOURCE (PostgreSQL) =====
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/freelancer_db}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:admin123}
+    driver-class-name: org.postgresql.Driver
+    
+    # Pool de Conexões (HikariCP)
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  # ===== UPLOAD DE ARQUIVOS =====
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2MB
+
+  # ===== THREADS VIRTUAIS (Java 21) =====
+  threads:
+    virtual:
+      enabled: true
+
+# ===== SERVIDOR =====
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+  compression:
+    enabled: true
+
+# ===== SEGURANÇA JWT =====
+jwt:
+  secret: ${JWT_SECRET:seu-secret-super-secreto-aqui-min-32-chars-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# ===== UPLOAD DE ARQUIVOS =====
+upload:
+  dir: ${UPLOAD_DIR:/app/uploads}
+
+# ===== LOGGING =====
+logging:
+  level:
+    root: INFO
+    com.freelancer.management: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /app/logs/application.log
+    max-size: 10MB
+    max-history: 30
+
+# ===== ACTUATOR (Monitoramento) =====
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
+
+# ===== INFORMAÇÕES DA APLICAÇÃO =====
+info:
+  app:
+    name: Sistema de Gestão de Freelancers
+    description: API REST para gerenciamento de freelancers e projetos
+    version: 1.0.0
+    java-version: ${java.version}
+
+---
+# ===== PROFILE: DEV (Desenvolvimento) =====
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    com.freelancer.management: DEBUG
+
+---
+# ===== PROFILE: PROD (Produção) =====
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.freelancer.management: INFO
+
+server:
+  error:
+    include-stacktrace: never

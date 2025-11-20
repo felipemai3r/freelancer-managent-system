@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # ===== BANCO DE DADOS POSTGRESQL =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: freelancer_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-freelancer_db}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    networks:
+      - freelancer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-freelancer_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== BACKEND SPRING BOOT =====
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: freelancer_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-freelancer_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO:-update}
+      SPRING_JPA_SHOW_SQL: ${SHOW_SQL:-true}
+      JWT_SECRET: ${JWT_SECRET:-seu-secret-super-secreto-aqui-min-32-chars}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      SERVER_PORT: 8080
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_uploads:/app/uploads
+      - ./backend/logs:/app/logs
+    networks:
+      - freelancer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===== PGADMIN (Opcional - Interface visual do banco) =====
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: freelancer_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@freelancer.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - freelancer-network
+    depends_on:
+      - postgres
+    profiles:
+      - dev  # Só sobe se executar: docker-compose --profile dev up
+
+  # ===== FRONTEND (Quando criar) =====
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: freelancer_frontend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     REACT_APP_API_URL: http://localhost:8080/api
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   networks:
+  #     - freelancer-network
+
+# ===== VOLUMES PERSISTENTES =====
+volumes:
+  postgres_data:
+    name: freelancer_postgres_data
+  backend_uploads:
+    name: freelancer_uploads
+  pgadmin_data:
+    name: freelancer_pgadmin_data
+
+# ===== REDE INTERNA =====
+networks:
+  freelancer-network:
+    name: freelancer-network
+    driver: bridge

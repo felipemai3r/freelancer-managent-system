@@ -1,0 +1,166 @@
+erDiagram
+    PESSOA ||--o| EMPRESA : "herda"
+    PESSOA ||--o| FREELANCER : "herda"
+    
+    EMPRESA ||--o{ PROJETO : "cria"
+    PROJETO ||--o{ PROJETO_FREELANCER : "possui"
+    FREELANCER ||--o{ PROJETO_FREELANCER : "participa"
+    
+    PROJETO ||--o| CONTRATO : "pode ter"
+    PROJETO ||--o{ ATIVIDADE : "contém"
+    
+    ATIVIDADE ||--o{ TAREFA : "possui"
+    TAREFA ||--o{ ENTREGA : "recebe"
+    
+    TAREFA ||--o{ PAGAMENTO : "gera"
+    PROJETO ||--o{ PAGAMENTO : "pode gerar"
+    
+    TAREFA ||--o{ COMENTARIO : "possui"
+    ATIVIDADE ||--o{ COMENTARIO : "possui"
+    
+    PESSOA ||--o{ COMENTARIO : "autor"
+    PESSOA ||--o{ NOTIFICACAO : "recebe"
+    PESSOA ||--o{ LOG : "gera"
+    
+    PESSOA {
+        bigint id PK
+        varchar email UK
+        varchar senha
+        enum tipo_usuario
+        timestamp criado_em
+        timestamp atualizado_em
+    }
+    
+    EMPRESA {
+        bigint id PK,FK
+        varchar nome_empresa
+        varchar cnpj UK
+        varchar telefone
+        text endereco
+    }
+    
+    FREELANCER {
+        bigint id PK,FK
+        varchar nome_completo
+        varchar cpf_cnpj UK
+        boolean is_pj
+        text habilidades
+        decimal valor_hora
+        text portfolio_url
+    }
+    
+    PROJETO {
+        bigint id PK
+        bigint empresa_id FK
+        varchar titulo
+        text descricao
+        decimal orcamento_total
+        date data_inicio
+        date data_fim_prevista
+        enum status
+        timestamp criado_em
+        timestamp atualizado_em
+    }
+    
+    PROJETO_FREELANCER {
+        bigint projeto_id PK,FK
+        bigint freelancer_id PK,FK
+        varchar papel
+        decimal valor_acordado
+        timestamp atribuido_em
+    }
+    
+    CONTRATO {
+        bigint id PK
+        bigint projeto_id FK UK
+        text termos
+        decimal valor_total
+        date data_inicio
+        date data_fim
+        enum status
+        boolean assinado_empresa
+        boolean assinado_freelancer
+        timestamp criado_em
+    }
+    
+    ATIVIDADE {
+        bigint id PK
+        bigint projeto_id FK
+        varchar nome
+        text descricao
+        integer ordem
+        enum status
+        timestamp criado_em
+        timestamp atualizado_em
+    }
+    
+    TAREFA {
+        bigint id PK
+        bigint atividade_id FK
+        bigint freelancer_id FK
+        varchar titulo
+        text descricao
+        enum prioridade
+        date prazo
+        decimal valor
+        enum status
+        timestamp criado_em
+        timestamp atualizado_em
+    }
+    
+    ENTREGA {
+        bigint id PK
+        bigint tarefa_id FK
+        varchar arquivo_url
+        text observacoes
+        enum status
+        timestamp enviado_em
+        timestamp aprovado_em
+        bigint aprovado_por FK
+    }
+    
+    PAGAMENTO {
+        bigint id PK
+        bigint tarefa_id FK
+        bigint projeto_id FK
+        bigint freelancer_id FK
+        decimal valor
+        date data_pagamento
+        enum metodo_pagamento
+        enum status
+        text observacoes
+        timestamp criado_em
+    }
+    
+    COMENTARIO {
+        bigint id PK
+        bigint autor_id FK
+        bigint tarefa_id FK
+        bigint atividade_id FK
+        text conteudo
+        timestamp criado_em
+    }
+    
+    NOTIFICACAO {
+        bigint id PK
+        bigint usuario_id FK
+        enum tipo
+        varchar titulo
+        text mensagem
+        boolean lida
+        varchar link_referencia
+        timestamp criado_em
+    }
+    
+    LOG {
+        bigint id PK
+        bigint usuario_id FK
+        varchar entidade
+        bigint entidade_id
+        enum acao
+        text descricao
+        text dados_antigos
+        text dados_novos
+        varchar ip_address
+        timestamp criado_em
+    }

@@ -1,0 +1,55 @@
+Casos de Uso - Sistema de Gestão de Freelancers
+Atores do Sistema
+Empresa (Contratante): Gerencia projetos, atividades, tarefas e pagamentos
+Freelancer: Executa tarefas e entrega trabalhos
+Sistema: Executa ações automatizadas (notificações, validações)
+UC01 - Gerenciar Freelancers
+Ator Principal: Empresa
+Objetivo: Cadastrar e gerenciar freelancers disponíveis para contratação
+
+Pré-condições:
+
+Empresa deve estar autenticada no sistema
+Fluxo Principal:
+
+Empresa acessa seção "Meus Freelancers"
+Sistema exibe lista de freelancers cadastrados
+Empresa seleciona "Adicionar Freelancer"
+Sistema exibe formulário de cadastro
+Empresa preenche dados (nome, CPF/CNPJ, tipo PJ/PF, habilidades, valor/hora)
+Sistema valida documento
+Sistema salva freelancer
+Sistema exibe mensagem de sucesso
+Fluxos Alternativos:
+
+3a. Editar Freelancer Existente
+Sistema carrega dados do freelancer
+Empresa modifica informações
+Sistema valida e salva alterações
+3b. Remover Freelancer
+Sistema verifica se freelancer tem projetos ativos
+Se sim, sistema impede remoção e exibe aviso
+Se não, sistema desativa freelancer
+Fluxos de Exceção:
+
+6a. Documento Inválido
+Sistema exibe mensagem de erro
+Sistema retorna ao passo 5
+Pós-condições:
+
+Freelancer está cadastrado e disponível para atribuição
+UC02 - Criar Projeto
+Ator Principal: Empresa
+Objetivo: Criar um novo projeto para organizar trabalhos
+
+Pré-condições:
+
+Empresa autenticada
+Pelo menos um freelancer cadastrado
+Fluxo Principal:
+
+Empresa acessa "Novo Projeto"
+Sistema exibe formulário
+Empresa preenche:
+Título do projeto
+Descrição

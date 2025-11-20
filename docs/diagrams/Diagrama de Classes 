@@ -1,0 +1,272 @@
+classDiagram
+    class Pessoa {
+        -Long id
+        -String email
+        -String senha
+        -TipoUsuario tipo
+        -LocalDateTime criadoEm
+        -LocalDateTime atualizadoEm
+        +getId() Long
+        +getEmail() String
+        +setEmail(String) void
+        +validarEmail() boolean
+        +alterarSenha(String) void
+    }
+    
+    class Empresa {
+        -Long id
+        -String nomeEmpresa
+        -String cnpj
+        -String telefone
+        -String endereco
+        -Pessoa pessoa
+        +validarCnpj() boolean
+        +getProjetos() List~Projeto~
+        +cadastrarFreelancer(Freelancer) void
+        +criarProjeto(Projeto) Projeto
+    }
+    
+    class Freelancer {
+        -Long id
+        -String nomeCompleto
+        -String cpfCnpj
+        -Boolean isPj
+        -String habilidades
+        -BigDecimal valorHora
+        -String portfolioUrl
+        -Pessoa pessoa
+        +validarDocumento() boolean
+        +calcularGanhosMes() BigDecimal
+        +getTarefasPendentes() List~Tarefa~
+        +getProjetosAtivos() List~Projeto~
+    }
+    
+    class Projeto {
+        -Long id
+        -Empresa empresa
+        -String titulo
+        -String descricao
+        -BigDecimal orcamentoTotal
+        -LocalDate dataInicio
+        -LocalDate dataFimPrevista
+        -StatusProjeto status
+        -List~ProjetoFreelancer~ freelancers
+        -List~Atividade~ atividades
+        -Contrato contrato
+        +adicionarFreelancer(Freelancer, String, BigDecimal) void
+        +removerFreelancer(Freelancer) void
+        +criarAtividade(Atividade) Atividade
+        +calcularProgresso() Integer
+        +finalizarProjeto() void
+        +cancelarProjeto(String) void
+    }
+    
+    class ProjetoFreelancer {
+        -Long projetoId
+        -Long freelancerId
+        -String papel
+        -BigDecimal valorAcordado
+        -LocalDateTime atribuidoEm
+        -Projeto projeto
+        -Freelancer freelancer
+    }
+    
+    class Contrato {
+        -Long id
+        -Projeto projeto
+        -String termos
+        -BigDecimal valorTotal
+        -LocalDate dataInicio
+        -LocalDate dataFim
+        -StatusContrato status
+        -Boolean assinadoEmpresa
+        -Boolean assinadoFreelancer
+        +assinarEmpresa() void
+        +assinarFreelancer() void
+        +validarAssinaturas() boolean
+        +cancelarContrato() void
+    }
+    
+    class Atividade {
+        -Long id
+        -Projeto projeto
+        -String nome
+        -String descricao
+        -Integer ordem
+        -StatusAtividade status
+        -List~Tarefa~ tarefas
+        +criarTarefa(Tarefa) Tarefa
+        +calcularProgresso() Integer
+        +moverParaCima() void
+        +moverParaBaixo() void
+    }
+    
+    class Tarefa {
+        -Long id
+        -Atividade atividade
+        -Freelancer freelancer
+        -String titulo
+        -String descricao
+        -Prioridade prioridade
+        -LocalDate prazo
+        -BigDecimal valor
+        -StatusTarefa status
+        -List~Entrega~ entregas
+        -List~Comentario~ comentarios
+        +atribuirFreelancer(Freelancer) void
+        +adicionarEntrega(Entrega) Entrega
+        +aprovarEntrega(Long, Long) void
+        +solicitarRevisao(String) void
+        +verificarPrazo() boolean
+        +marcarComoConcluida() void
+    }
+    
+    class Entrega {
+        -Long id
+        -Tarefa tarefa
+        -String arquivoUrl
+        -String observacoes
+        -StatusEntrega status
+        -LocalDateTime enviadoEm
+        -LocalDateTime aprovadoEm
+        -Long aprovadoPor
+        +aprovar(Long) void
+        +reprovar(String) void
+        +getUrlDownload() String
+    }
+    
+    class Pagamento {
+        -Long id
+        -Tarefa tarefa
+        -Projeto projeto
+        -Freelancer freelancer
+        -BigDecimal valor
+        -LocalDate dataPagamento
+        -MetodoPagamento metodoPagamento
+        -StatusPagamento status
+        -String observacoes
+        +efetuarPagamento() void
+        +cancelarPagamento() void
+        +gerarComprovante() String
+    }
+    
+    class Comentario {
+        -Long id
+        -Pessoa autor
+        -Tarefa tarefa
+        -Atividade atividade
+        -String conteudo
+        -LocalDateTime criadoEm
+        +editar(String) void
+        +excluir() void
+    }
+    
+    class Notificacao {
+        -Long id
+        -Pessoa usuario
+        -TipoNotificacao tipo
+        -String titulo
+        -String mensagem
+        -Boolean lida
+        -String linkReferencia
+        -LocalDateTime criadoEm
+        +marcarComoLida() void
+        +marcarComoNaoLida() void
+    }
+    
+    class Log {
+        -Long id
+        -Pessoa usuario
+        -String entidade
+        -Long entidadeId
+        -AcaoLog acao
+        -String descricao
+        -String dadosAntigos
+        -String dadosNovos
+        -String ipAddress
+        -LocalDateTime criadoEm
+        +registrar() void
+    }
+    
+    class TipoUsuario {
+        <<enumeration>>
+        ADMIN
+        EMPRESA
+        FREELANCER
+    }
+    
+    class StatusProjeto {
+        <<enumeration>>
+        PLANEJAMENTO
+        EM_ANDAMENTO
+        CONCLUIDO
+        CANCELADO
+    }
+    
+    class StatusTarefa {
+        <<enumeration>>
+        PENDENTE
+        EM_PROGRESSO
+        AGUARDANDO_ENTREGA
+        ENTREGA_RECEBIDA
+        APROVADA
+        REVISAO_NECESSARIA
+        CONCLUIDA
+        CANCELADA
+    }
+    
+    class StatusEntrega {
+        <<enumeration>>
+        AGUARDANDO_APROVACAO
+        APROVADA
+        REVISAO_NECESSARIA
+        REJEITADA
+    }
+    
+    class StatusPagamento {
+        <<enumeration>>
+        PENDENTE
+        PROCESSANDO
+        PAGO
+        CANCELADO
+    }
+    
+    class Prioridade {
+        <<enumeration>>
+        BAIXA
+        MEDIA
+        ALTA
+        URGENTE
+    }
+    
+    Pessoa <|-- Empresa : herda
+    Pessoa <|-- Freelancer : herda
+    
+    Empresa "1" --> "0..*" Projeto : cria
+    Projeto "1" --> "0..*" ProjetoFreelancer : possui
+    Freelancer "1" --> "0..*" ProjetoFreelancer : participa
+    
+    Projeto "1" --> "0..1" Contrato : pode ter
+    Projeto "1" --> "0..*" Atividade : contém
+    Atividade "1" --> "0..*" Tarefa : possui
+    
+    Tarefa "1" --> "1" Freelancer : atribuída a
+    Tarefa "1" --> "0..*" Entrega : recebe
+    
+    Tarefa "0..1" --> "0..*" Pagamento : pode gerar
+    Projeto "0..1" --> "0..*" Pagamento : pode gerar
+    Freelancer "1" --> "0..*" Pagamento : recebe
+    
+    Tarefa "1" --> "0..*" Comentario : possui
+    Atividade "1" --> "0..*" Comentario : possui
+    Pessoa "1" --> "0..*" Comentario : autor
+    
+    Pessoa "1" --> "0..*" Notificacao : recebe
+    Pessoa "1" --> "0..*" Log : gera
+    
+    Pessoa --> TipoUsuario : usa
+    Projeto --> StatusProjeto : usa
+    Tarefa --> StatusTarefa : usa
+    Tarefa --> Prioridade : usa
+    Entrega --> StatusEntrega : usa
+    Pagamento --> StatusPagamento : usa
