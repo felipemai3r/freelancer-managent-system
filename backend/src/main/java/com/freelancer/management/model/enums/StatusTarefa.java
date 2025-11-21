@@ -89,7 +89,7 @@ public enum StatusTarefa {
      * Verifica se o status da tarefa permite solicitar revisão
      * 
      * @return true se for ENTREGA_RECEBIDA
-     */
+     */  
     public boolean podeSolicitarRevisao() {
         return this == ENTREGA_RECEBIDA;
     }
