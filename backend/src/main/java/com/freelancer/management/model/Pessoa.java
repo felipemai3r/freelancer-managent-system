@@ -35,7 +35,7 @@ public class Pessoa {
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore
+    //@JsonIgnore //Ignora a senha na serialização JSON 
     private String senha;
 
     @Enumerated(EnumType.STRING)
