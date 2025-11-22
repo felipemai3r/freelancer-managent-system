@@ -5,7 +5,6 @@ import com.freelancer.management.model.Empresa;
 import com.freelancer.management.repository.EmpresaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +17,11 @@ public class EmpresaController {
     @GetMapping("/listar")
     public List<Empresa> listarEmpresas() {
         return empresaRepository.findAll();
+    }
+
+    @PostMapping("/criarEmpresa")
+    public Empresa criarEmpresa(@RequestBody Empresa empresa) {
+        return empresaRepository.save(empresa);
     }
 
 }
