@@ -37,15 +37,15 @@ ALTER SEQUENCE contrato_id_seq RESTART WITH 1;
 -- =====================================================
 -- PESSOAS (Senha: senha123)
 -- =====================================================
-INSERT INTO pessoa (email, senha, tipo_usuario) VALUES
+INSERT INTO pessoa (email, senha, tipo_usuario, ativo) VALUES
 -- Empresas
-('empresa1@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'EMPRESA'),
-('empresa2@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'EMPRESA'),
+('empresa1@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'EMPRESA', TRUE),
+('empresa2@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'EMPRESA', TRUE),
 -- Freelancers
-('joao.designer@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER'),
-('maria.dev@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER'),
-('pedro.redator@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER'),
-('ana.marketing@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER');
+('joao.designer@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER', TRUE),
+('maria.dev@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER', TRUE),
+('pedro.redator@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER', TRUE),
+('ana.marketing@teste.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'FREELANCER', TRUE),
 
 -- =====================================================
 -- EMPRESAS

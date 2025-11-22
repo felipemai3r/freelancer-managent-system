@@ -2,6 +2,7 @@ package com.freelancer.management.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -22,7 +23,7 @@ public class Freelancer {
     @Id
     private Long id;
 
-    @OneToOne // Relação um-para-um com Pessoa
+    @OneToOne(cascade = CascadeType.PERSIST) // Relação um-para-um com Pessoa. Remover cascade.
     @MapsId // Usa o mesmo ID de Pessoa
     @JoinColumn(name = "id") // Chave estrangeira para Pessoa
     private Pessoa pessoa;
@@ -38,20 +39,20 @@ public class Freelancer {
 
     @Column(name = "habilidades", columnDefinition = "TEXT")
     private String habilidades;
-    
+
     @Column(name = "valor_hora")
     private BigDecimal valorHora;
-    
+
     @Column(name = "portfolio_url", length = 500)
     private String portfolioUrl;
-
 
     public String getEmail() {
         return pessoa != null ? pessoa.getEmail() : null;
     }
-    
+
     public boolean cpfCnpjValido() {
-        if (cpfCnpj == null) return false;
+        if (cpfCnpj == null)
+            return false;
         String numeros = cpfCnpj.replaceAll("\\D", "");
         return numeros.length() == 11 || numeros.length() == 14;
     }
@@ -60,23 +61,22 @@ public class Freelancer {
      * Retorna CPF ou CNPJ formatado
      */
     public String getCpfCnpjFormatado() {
-        if (cpfCnpj == null) return cpfCnpj;
+        if (cpfCnpj == null)
+            return cpfCnpj;
         String numeros = cpfCnpj.replaceAll("\\D", "");
         if (numeros.length() == 11) {
             return String.format("%s.%s.%s-%s",
-                numeros.substring(0, 3),
-                numeros.substring(3, 6),
-                numeros.substring(6, 9),
-                numeros.substring(9, 11)
-            );
+                    numeros.substring(0, 3),
+                    numeros.substring(3, 6),
+                    numeros.substring(6, 9),
+                    numeros.substring(9, 11));
         } else if (numeros.length() == 14) {
             return String.format("%s.%s.%s/%s-%s",
-                numeros.substring(0, 2),
-                numeros.substring(2, 5),
-                numeros.substring(5, 8),
-                numeros.substring(8, 12),
-                numeros.substring(12, 14)
-            );
+                    numeros.substring(0, 2),
+                    numeros.substring(2, 5),
+                    numeros.substring(5, 8),
+                    numeros.substring(8, 12),
+                    numeros.substring(12, 14));
         } else {
             return cpfCnpj;
         }
@@ -84,6 +84,7 @@ public class Freelancer {
 
     /**
      * Verifica se é Pessoa Jurídica
+     * 
      * @return boolean se for PJ
      */
     public boolean isPessoaJuridica() {
@@ -94,5 +95,29 @@ public class Freelancer {
         return Boolean.FALSE.equals(this.isPj);
     }
 
+    /**
+     * Verifica se o freelancer está ativo
+     */
+    public boolean isAtivo() {
+        return pessoa != null && pessoa.isAtivo();
+    }
+
+    /**
+     * Desativa o freelancer
+     */
+    public void desativar() {
+        if (pessoa != null) {
+            pessoa.desativar();
+        }
+    }
+
+    /**
+     * Reativa o freelancer
+     */
+    public void ativar() {
+        if (pessoa != null) {
+            pessoa.ativar();
+        }
+    }
 
 }

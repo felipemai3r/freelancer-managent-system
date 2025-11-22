@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.freelancer.management.model.enums.TipoUsuario;
 
 import jakarta.persistence.Column;
@@ -50,6 +51,9 @@ public class Pessoa {
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 
+    @Column(name = "ativo")
+    private Boolean ativo = true;
+
     public boolean isAdmin() {
         return this.tipo == TipoUsuario.ADMIN;
     }
@@ -81,5 +85,33 @@ public class Pessoa {
             return false;
         }
         return this.senha.equals(senha);
+    }
+
+    /**
+     * Desativa o usuário (soft delete)
+     */
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    /**
+     * Reativa o usuário
+     */
+    public void ativar() {
+        this.ativo = true;
+    }
+
+    /**
+     * Verifica se o usuário está ativo
+     */
+    public boolean isAtivo() {
+        return Boolean.TRUE.equals(this.ativo);
+    }
+
+    /**
+     * Verifica se o usuário está inativo
+     */
+    public boolean isInativo() {
+        return Boolean.FALSE.equals(this.ativo);
     }
 }

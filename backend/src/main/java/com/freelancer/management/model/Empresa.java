@@ -39,7 +39,8 @@ public class Empresa {
     }
 
     public boolean cnpjValido() {
-        if (cnpj == null) return false;
+        if (cnpj == null)
+            return false;
         String cnpjNumeros = cnpj.replaceAll("\\D", "");
         return cnpjNumeros.length() == 14;
     }
@@ -48,13 +49,29 @@ public class Empresa {
      * Retorna CNPJ formatado
      */
     public String getCnpjFormatado() {
-        if (cnpj == null || cnpj.length() != 14) return cnpj;
+        if (cnpj == null || cnpj.length() != 14)
+            return cnpj;
         return String.format("%s.%s.%s/%s-%s",
-            cnpj.substring(0, 2),
-            cnpj.substring(2, 5),
-            cnpj.substring(5, 8),
-            cnpj.substring(8, 12),
-            cnpj.substring(12, 14)
-        );
+                cnpj.substring(0, 2),
+                cnpj.substring(2, 5),
+                cnpj.substring(5, 8),
+                cnpj.substring(8, 12),
+                cnpj.substring(12, 14));
+    }
+
+    public boolean isAtivo() {
+        return pessoa != null && pessoa.isAtivo();
+    }
+
+    public void desativar() {
+        if (pessoa != null) {
+            pessoa.desativar();
+        }
+    }
+
+    public void ativar() {
+        if (pessoa != null) {
+            pessoa.ativar();
+        }
     }
 }
