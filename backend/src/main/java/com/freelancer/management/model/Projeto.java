@@ -73,7 +73,9 @@ public class Projeto {
     @Column(name = "atualizado_em", nullable = false)
     private LocalDateTime atualizadoEm;
 
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Relacionamentos
+
+    @OneToMany(mappedBy = "projeto", orphanRemoval = true)
     private List<ProjetoFreelancer> projetoFreelancers = new ArrayList<>();
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -81,18 +83,30 @@ public class Projeto {
     /*
     */
 
+    /**
+     * Verifica se o projeto está ativo (não foi cancelado nem concluído)
+     */
     public boolean isAtivo() {
         return this.status != StatusProjeto.CANCELADO && this.status != StatusProjeto.CONCLUIDO;
     }
 
+    /**
+     * Verifica se o projeto foi concluído
+     */
     public boolean isConcluido() {
         return this.status == StatusProjeto.CONCLUIDO;
     }
 
+    /**
+     * Verifica se o projeto foi cancelado
+     */
     public boolean isCancelado() {
         return this.status == StatusProjeto.CANCELADO;
     }
 
+    /**
+     * Retorna lista de freelancers do projeto
+     */
     public List<Freelancer> obterFreelancers() {
         if (projetoFreelancers == null) {
             return new ArrayList<>();
@@ -102,40 +116,60 @@ public class Projeto {
                 .toList();
     }
 
+    /**
+     * Retorna quantidade de freelancers no projeto
+     */
     public int totalFreelancers() {
-         return projetoFreelancers != null ? projetoFreelancers.size() : 0;
-     }
-
-
-    public List<Atividade> obterAtividades() {
-        return atividades;
+        return projetoFreelancers != null ? projetoFreelancers.size() : 0;
     }
-    
+
+    /**
+     * Retorna lista de atividades do projeto
+     */
+    public List<Atividade> obterAtividades() {
+        return atividades != null ? atividades : new ArrayList<>();
+    }
+
+    /**
+     * Retorna número de atividades do projeto
+     */
     public int obterNumeroDeAtividades() {
         return atividades != null ? atividades.size() : 0;
     }
 
+    /**
+     * Calcula o progresso do projeto baseado nas atividades concluídas
+     * 
+     * @return percentual de 0 a 100
+     */
     public double calcularProgresso() {
         if (atividades == null || atividades.isEmpty()) {
             return 0.0;
         }
+
         long atividadesConcluidas = atividades.stream()
-                .filter(atividade -> atividade.getStatus() == StatusAtividade.CONCLUIDA)
+                .filter(atividade -> atividade
+                        .getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
                 .count();
+
         return (double) atividadesConcluidas / atividades.size() * 100;
     }
 
+    /**
+     * Retorna número de atividades concluídas
+     */
     public int obterNumeroDeAtividadesConcluidas() {
         if (atividades == null) {
             return 0;
         }
         return (int) atividades.stream()
-                .filter(atividade -> atividade.getStatus() == StatusAtividade.CONCLUIDA)
+                .filter(atividade -> atividade
+                        .getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
                 .count();
     }
 
     /**
-     * Adiciona um freelancer ao projeto
+     * Adiciona um freelancer ao projeto (helper method)
      */
     public void adicionarFreelancer(Freelancer freelancer, String papel, BigDecimal valorAcordado) {
         ProjetoFreelancer pf = new ProjetoFreelancer();
@@ -147,7 +181,7 @@ public class Projeto {
     }
 
     /**
-     * Adiciona uma atividade ao projeto
+     * Adiciona uma atividade ao projeto (helper method)
      */
     public void adicionarAtividade(Atividade atividade) {
         atividades.add(atividade);
