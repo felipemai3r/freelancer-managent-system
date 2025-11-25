@@ -2,6 +2,7 @@ package com.freelancer.management.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -62,11 +63,11 @@ public class Tarefa {
 
     @CreationTimestamp
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDate criadoEm;
+    private LocalDateTime criadoEm;
 
     @CreationTimestamp
     @Column(name = "atualizado_em", nullable = false)
-    private LocalDate atualizadoEm;
+    private LocalDateTime atualizadoEm;
 
 
 

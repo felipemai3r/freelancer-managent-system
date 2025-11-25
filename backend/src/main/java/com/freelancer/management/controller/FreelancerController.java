@@ -20,7 +20,7 @@ public class FreelancerController {
      @Autowired
     private FreelancerRepository freelancerRepository;
 
-    @GetMapping("/freelancers")
+    @GetMapping("/listar")
     public List<Freelancer> listarFreelancers() {
         return freelancerRepository.findAll();
     }

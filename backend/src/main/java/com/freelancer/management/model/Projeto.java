@@ -9,7 +9,6 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.freelancer.management.model.enums.StatusAtividade;
 import com.freelancer.management.model.enums.StatusProjeto;
 
 import jakarta.persistence.CascadeType;
@@ -61,7 +60,7 @@ public class Projeto {
     private LocalDate dataFimPrevista;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "status_projeto_enum" )
     private StatusProjeto status = StatusProjeto.PLANEJAMENTO;
 
     // ========== TIMESTAMPS AUTOMÁTICOS ==========
