@@ -32,33 +32,39 @@ public class AuthService {
      */
     public LoginResponse login(LoginRequest request) {
         // 1. Buscar pessoa por email
-        Pessoa pessoa = pessoaRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
-
+        var pessoaOpt = pessoaRepository.findByEmail(request.getEmail());
+    
+        if (pessoaOpt.isEmpty()) {
+            throw new RuntimeException("Email não encontrado");
+        }
+    
+        Pessoa pessoa = pessoaOpt.get();
+    
         // 2. Verificar se está ativo
         if (!pessoa.isAtivo()) {
             throw new RuntimeException("Usuário desativado");
         }
-
-        // 3. Verificar senha (compara plain text com hash BCrypt)
-        if (!passwordEncoder.matches(request.getSenha(), pessoa.getSenha())) {
-            throw new RuntimeException("Credenciais inválidas");
+    
+        // 3. Verificar senha
+        boolean senhaConfere = passwordEncoder.matches(request.getSenha(), pessoa.getSenha());
+    
+        if (!senhaConfere) {
+            throw new RuntimeException("Senha inválida");
         }
-
+    
         // 4. Gerar token JWT
         String token = jwtUtil.generateToken(
                 pessoa.getId(),
                 pessoa.getEmail(),
                 pessoa.getTipo().name()
         );
-
-        // 5. Montar resposta
+    
         UserDTO userDTO = new UserDTO(
                 pessoa.getId(),
                 pessoa.getEmail(),
                 pessoa.getTipo()
         );
-
+    
         return new LoginResponse(token, userDTO);
     }
 }
