@@ -4,6 +4,7 @@ import com.freelancer.management.dto.TarefaRequestDTO;
 import com.freelancer.management.model.Atividade;
 import com.freelancer.management.model.Freelancer;
 import com.freelancer.management.model.Tarefa;
+import com.freelancer.management.model.enums.StatusTarefa;
 import com.freelancer.management.repository.AtividadeRepository;
 import com.freelancer.management.repository.FreelancerRepository;
 import com.freelancer.management.repository.TarefaRepository;
@@ -97,7 +98,7 @@ public class TarefaService {
      * Atualiza status da tarefa
      */
     @Transactional
-    public Tarefa atualizarStatus(Long id, com.freelancer.management.model.enums.StatusTarefa status) {
+    public Tarefa atualizarStatus(Long id, StatusTarefa status) {
         Tarefa tarefa = buscarPorId(id);
         tarefa.atualizarStatus(status);
         return tarefaRepository.save(tarefa);
