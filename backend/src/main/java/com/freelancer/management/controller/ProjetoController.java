@@ -36,11 +36,11 @@ public class ProjetoController {
      * GET /api/projetos
      * Lista todos os projetos
      */
-    @GetMapping("/projetos")
-    public ResponseEntity<List<ProjetoResponseDTO>> listarTodos() {
-        List<ProjetoResponseDTO> projetos = projetoService.listarTodos();
-        return ResponseEntity.ok(projetos);
-    }
+     @GetMapping("/projetos")
+     public ResponseEntity<List<ProjetoResponseDTO>> listarTodos() {
+         List<ProjetoResponseDTO> projetos = projetoService.listarTodos();
+         return ResponseEntity.ok(projetos);
+     }
 
     /**
      * GET /api/projetos/{id}
