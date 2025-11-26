@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.freelancer.management.model.enums.StatusAtividade;
 
@@ -55,7 +56,7 @@ public class Atividade {
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "atualizado_em", nullable = false)
     private LocalDateTime atualizadoEm;
 
@@ -172,7 +173,7 @@ public class Atividade {
             return 0;
         }
         return (int) tarefas.stream()
-                .filter(tarefa -> tarefa.getStatus() == StatusAtividade.CONCLUIDA)
+                .filter(Tarefa::isConcluida)
                 .count();
     }
 

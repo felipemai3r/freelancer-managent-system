@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class ProjetoFreelancerId implements Serializable {
+public class ProjetoFreelancerId implements Serializable {
     
     private static final long serialVersionUID = 1L;
 

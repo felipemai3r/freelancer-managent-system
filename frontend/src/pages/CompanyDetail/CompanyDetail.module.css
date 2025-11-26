@@ -1,0 +1,11 @@
+.wrapper { padding:.8rem 1rem; }
+
+.cardWrap { max-width:900px; margin:0 auto; }
+
+.title { font-size:1.12rem; font-weight:700; color:var(--primary-dark); margin-bottom:.6rem; }
+
+.row { display:flex; gap:1rem; flex-direction:column; margin-bottom:.5rem; color: rgba(27,27,27,0.8); }
+
+@media(min-width:768px){
+  .row { flex-direction:row; justify-content:space-between; }
+}

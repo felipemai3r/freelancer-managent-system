@@ -40,7 +40,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-freelancer_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO:-update}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DDL_AUTO:-validate}
       SPRING_JPA_SHOW_SQL: ${SHOW_SQL:-true}
       JWT_SECRET: ${JWT_SECRET:-seu-secret-super-secreto-aqui-min-32-chars}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
@@ -54,11 +54,31 @@ services:
     networks:
       - freelancer-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
+
+  # ===== FRONTEND REACT =====
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: freelancer_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+    networks:
+      - freelancer-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ===== PGADMIN (Opcional - Interface visual do banco) =====
   pgadmin:
@@ -79,26 +99,7 @@ services:
     depends_on:
       - postgres
     profiles:
-      - dev  # Só sobe se executar: docker-compose --profile dev up
-
-  # ===== FRONTEND (Quando criar) =====
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: freelancer_frontend
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     REACT_APP_API_URL: http://localhost:8080/api
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   networks:
-  #     - freelancer-network
+      - dev
 
 # ===== VOLUMES PERSISTENTES =====
 volumes:
