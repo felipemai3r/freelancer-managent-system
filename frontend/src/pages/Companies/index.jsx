@@ -8,11 +8,10 @@ import styles from "./Companies.module.css";
 import "animate.css";
 
 const fields = [
-  { name: "nomeFantasia", label: "Nome Fantasia", required: true, placeholder: "Nome fantasia" },
-  { name: "razaoSocial", label: "Razão Social", required: true, placeholder: "Razão social" },
+  { name: "nomeEmpresa", label: "Nome da Empresa", required: true, placeholder: "Nome da empresa" },
   { name: "cnpj", label: "CNPJ", required: true, placeholder: "00.000.000/0000-00" },
-  { name: "email", label: "Email", required: false, placeholder: "contato@empresa.com" },
-  { name: "setor", label: "Setor", required: false, placeholder: "Setor da empresa" },
+  { name: "telefone", label: "Telefone", required: false, placeholder: "(00) 00000-0000" },
+  { name: "endereco", label: "Endereço", required: false, placeholder: "Endereço completo" },
 ];
 
 export default function Companies() {
@@ -25,6 +24,7 @@ export default function Companies() {
     try {
       await create(data);
       setModalOpen(false);
+      fetchAll(); // Recarrega a lista
     } catch (err) {
       console.error("Erro ao salvar empresa", err);
       alert("Erro ao salvar: " + (err.message || err));
@@ -32,8 +32,8 @@ export default function Companies() {
   };
 
   return (
-    <div className={`${styles.page} animate__animated animate__fadeInUp`}>
-      <div className={styles.header}>
+    <div className={`${styles.container} animate__animated animate__fadeInUp`}>
+      <div className={styles.headerRow}>
         <h2 className={styles.title}>Empresas</h2>
 
         <div className={styles.actions}>
@@ -42,33 +42,34 @@ export default function Companies() {
         </div>
       </div>
 
-      {loading && <p className={styles.loading}>Carregando...</p>}
-      {error && <p className={styles.error}>Erro ao carregar empresas.</p>}
+      {loading && <p>Carregando...</p>}
+      {error && <p>Erro ao carregar empresas: {error.message}</p>}
 
-      <div className={styles.grid}>
-        {items.map(e => (
-          <div key={e.id} className={styles.itemWrapper}>
-            <EnterpriseCard empresa={e} />
-
-            {/* O BACKEND NÃO IMPLEMENTOU PUT / DELETE */}
-            {/*
-            <div className={styles.row}>
-              <button className="btn" onClick={() => handleEdit(e)}>Editar</button>
-              <button className="btn danger" onClick={() => handleDelete(e.id)}>Remover</button>
-              <a className="btn" href={`/empresas/${e.id}`}>Ver</a>
-            </div>
-            */}
-          </div>
-        ))}
+      <div className={styles.listGrid}>
+        {/* ✅ VALIDAÇÃO ADICIONADA AQUI */}
+        {items && items.length > 0 ? (
+          items.map(e => (
+            <EnterpriseCard key={e.id} empresa={e} />
+          ))
+        ) : (
+          !loading && <p>Nenhuma empresa encontrada.</p>
+        )}
       </div>
 
-      <EntityModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleSubmit}
-        initial={{}}
-        fields={fields}
-      />
+      {modalOpen && (
+        <EntityModal
+          onClose={() => setModalOpen(false)}
+          handleSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            handleSubmit(data);
+          }}
+          handleChange={() => {}}
+          form={{}}
+          fields={fields}
+        />
+      )}
     </div>
   );
 }

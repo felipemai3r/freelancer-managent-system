@@ -9,7 +9,7 @@ import axiosClient from "./axiosClient";
  * If backend returns a different shape, adapt this file accordingly.
  */
 const AuthService = {
-  login: (credentials) => axiosClient.post("/api/auth/login", credentials),
+  login: (credentials) => axiosClient.post("/auth/login", credentials),
   // optional endpoints for the future:
   // refresh: () => axiosClient.post('/api/auth/refresh'),
   // logout: () => axiosClient.post('/api/auth/logout'),

@@ -1,11 +1,12 @@
-// src/context/AuthContext.jsx
+
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import AuthService from "../api/authService";
 import axiosClient from "../api/axiosClient";
-import { useNavigate } from "react-router-dom";
+
 
 const AuthStateContext = createContext(null);
 const AuthDispatchContext = createContext(null);
+
 
 const initialState = {
   isAuthenticated: false,
@@ -14,6 +15,7 @@ const initialState = {
   loading: false,
   error: null,
 };
+
 
 function authReducer(state, action) {
   switch (action.type) {
@@ -43,42 +45,51 @@ function authReducer(state, action) {
   }
 }
 
+
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const navigate = useNavigate();
 
-  // initialize from localStorage
+
+  // Inicializar do localStorage
   useEffect(() => {
     try {
       const token = localStorage.getItem("token");
       const userJson = localStorage.getItem("user");
       const user = userJson ? JSON.parse(userJson) : null;
       if (token) {
-        // optionally validate token by a ping endpoint
         dispatch({ type: "INIT_FROM_STORAGE", payload: { token, user } });
       }
     } catch (e) {
-      // ignore parse errors
+      console.error("Erro ao carregar auth do storage:", e);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   const login = async (email, senha) => {
     dispatch({ type: "LOGIN_START" });
     try {
       const res = await AuthService.login({ email, senha });
-      // assume format A:
-      // { token: '...', user: { id, email, tipoUsuario } }
       const data = res.data;
       const token = data.token;
       const user = data.user;
-      if (!token) throw new Error("Resposta de autenticação inválida (token não encontrado).");
+     
+      if (!token) {
+        throw new Error("Token não encontrado na resposta");
+      }
+     
+      // Salvar no localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      dispatch({ type: "LOGIN_SUCCESS", payload: { token, user } });
-      // set axios default header (redundant com interceptor, mas garante imediatidade)
+     
+      // Atualizar header do axios
       axiosClient.defaults.headers.common.Authorization = `Bearer ${token}`;
-      navigate("/dashboard");
+     
+      // Atualizar estado
+      dispatch({ type: "LOGIN_SUCCESS", payload: { token, user } });
+     
+      // ✅ REDIRECIONAR USANDO window.location (SEMPRE FUNCIONA)
+      window.location.href = "/dashboard";
+     
       return { ok: true };
     } catch (err) {
       const message = err.response?.data?.message || err.message || "Erro no login";
@@ -87,13 +98,17 @@ export function AuthProvider({ children }) {
     }
   };
 
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     axiosClient.defaults.headers.common.Authorization = undefined;
     dispatch({ type: "LOGOUT" });
-    navigate("/login");
+   
+    // ✅ REDIRECIONAR USANDO window.location
+    window.location.href = "/login";
   };
+
 
   return (
     <AuthStateContext.Provider value={state}>
@@ -104,15 +119,18 @@ export function AuthProvider({ children }) {
   );
 }
 
-// hooks
+
+// Hooks
 export function useAuthState() {
   const ctx = useContext(AuthStateContext);
   if (ctx === undefined) throw new Error("useAuthState must be used within AuthProvider");
   return ctx;
 }
 
+
 export function useAuth() {
   const ctx = useContext(AuthDispatchContext);
   if (ctx === undefined) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+

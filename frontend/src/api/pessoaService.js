@@ -1,17 +1,17 @@
 import axiosClient from "./axiosClient";
 
 const PessoaService = {
-  // GET /api/pessoa/listar
-  list: (params) => axiosClient.get("/api/pessoa/listar", { params }),
+  // GET /pessoa/listar
+  list: (params) => axiosClient.get("/pessoa/listar", { params }),
 
-  // POST /api/pessoa/criarPessoa
-  create: (payload) => axiosClient.post("/api/pessoa/criarPessoa", payload),
+  // POST /pessoa/criarPessoa
+  create: (payload) => axiosClient.post("/pessoa/criarPessoa", payload),
 
-  // PUT /api/pessoa/{id}/desativar
-  desativar: (id) => axiosClient.put(`/api/pessoa/${id}/desativar`),
+  // PUT /pessoa/{id}/desativar
+  desativar: (id) => axiosClient.put(`/pessoa/${id}/desativar`),
 
-  // PUT /api/pessoa/{id}/ativar
-  ativar: (id) => axiosClient.put(`/api/pessoa/${id}/ativar`),
+  // PUT /pessoa/{id}/ativar
+  ativar: (id) => axiosClient.put(`/pessoa/${id}/ativar`),
 
   // BACKEND NÃO IMPLEMENTA AINDA:
   // buscarPorId: (id) => axiosClient.get(`/api/pessoa/${id}`),

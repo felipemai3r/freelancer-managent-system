@@ -1,14 +1,14 @@
 import axiosClient from "./axiosClient";
 
 const EmpresaService = {
-  listar: () => axiosClient.get("/api/empresa/listar"),
+  listar: () => axiosClient.get("/empresa/listar"),
 
-  criar: (empresa) => axiosClient.post("/api/empresa/criarEmpresa", empresa),
+  criar: (empresa) => axiosClient.post("/empresa/criarEmpresa", empresa),
 
   // Backend NÃO implementou buscar por ID, editar e deletar
-  // buscarPorId: (id) => axiosClient.get(`/api/empresa/${id}`),
-  // editar: (id, data) => axiosClient.put(`/api/empresa/${id}`, data),
-  // remover: (id) => axiosClient.delete(`/api/empresa/${id}`),
+  // buscarPorId: (id) => axiosClient.get(`/empresa/${id}`),
+  // editar: (id, data) => axiosClient.put(`/empresa/${id}`, data),
+  // remover: (id) => axiosClient.delete(`/empresa/${id}`),
 };
 
 export default EmpresaService;

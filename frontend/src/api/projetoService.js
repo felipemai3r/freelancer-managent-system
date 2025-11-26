@@ -1,24 +1,24 @@
-// src/api/projetoService.js
+// src/projetoService.js
 import axiosClient from "./axiosClient";
 
 /**
  * Endpoints sugeridos (backend pode ajustar):
- * GET    /api/projetos
- * GET    /api/projetos/{id}
- * POST   /api/projetos
- * PUT    /api/projetos/{id}
- * DELETE /api/projetos/{id}
+ * GET    /projetos
+ * GET    /projetos/{id}
+ * POST   /projetos
+ * PUT    /projetos/{id}
+ * DELETE /projetos/{id}
  */
 const ProjetoService = {
-  list: (params) => axiosClient.get("/api/projetos", { params }),
-  getById: (id) => axiosClient.get(`/api/projetos/${id}`),
-  create: (payload) => axiosClient.post("/api/projetos", payload),
-  update: (id, payload) => axiosClient.put(`/api/projetos/${id}`, payload),
-  remove: (id) => axiosClient.delete(`/api/projetos/${id}`),
+  list: (params) => axiosClient.get("/projetos", { params }),
+  getById: (id) => axiosClient.get(`/projetos/${id}`),
+  create: (payload) => axiosClient.post("/projetos", payload),
+  update: (id, payload) => axiosClient.put(`/projetos/${id}`, payload),
+  remove: (id) => axiosClient.delete(`/projetos/${id}`),
 
   // helpers
   listByEmpresa: (empresaId, params) =>
-    axiosClient.get(`/api/empresas/${empresaId}/projetos`, { params }),
+    axiosClient.get(`/empresas/${empresaId}/projetos`, { params }),
 };
 
 export default ProjetoService;

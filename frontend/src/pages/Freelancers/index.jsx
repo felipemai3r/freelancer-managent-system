@@ -10,7 +10,7 @@ export default function Freelancers() {
 
   const fetchFreelancers = useCallback(async () => {
     try {
-      const res = await FreelancerService.list();
+      const res = await FreelancerService.listar();
       setFreelancers(res.data);
     } catch (err) {
       console.error("Erro ao carregar freelancers:", err);

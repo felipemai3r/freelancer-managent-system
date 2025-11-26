@@ -23,10 +23,9 @@ export default function CompanyDetail() {
       <h2 className={styles.title}>Empresa #{empresa.id}</h2>
 
       <div className={styles.card}>
-        <p><strong>Nome Fantasia:</strong> {empresa.nomeFantasia}</p>
-        <p><strong>Razão Social:</strong> {empresa.razaoSocial}</p>
+        <p><strong>Nome Fantasia:</strong> {empresa.nomeEmpresa}</p>
         <p><strong>CNPJ:</strong> {empresa.cnpj}</p>
-        <p><strong>Email:</strong> {empresa.email}</p>
+        <p><strong>Email:</strong> {empresa.pessoa.email}</p>
         <p><strong>Setor:</strong> {empresa.setor || "Não informado"}</p>
       </div>
 

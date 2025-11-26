@@ -1,14 +1,14 @@
 import axiosClient from "./axiosClient";
 
 const FreelancerService = {
-  listar: () => axiosClient.get("/api/freelancer/freelancers"),
+  listar: () => axiosClient.get("/freelancer/listar"),
 
-  criar: (freelancer) => axiosClient.post("/api/freelancer/freelancer", freelancer),
+  criar: (freelancer) => axiosClient.post("/freelancer/freelancer", freelancer),
 
   // Backend NÃO implementou:
-  // buscarPorId: (id) => axiosClient.get(`/api/freelancer/${id}`),
-  // editar: (id, data) => axiosClient.put(`/api/freelancer/${id}`, data),
-  // remover: (id) => axiosClient.delete(`/api/freelancer/${id}`),
+  // buscarPorId: (id) => axiosClient.get(`/freelancer/${id}`),
+  // editar: (id, data) => axiosClient.put(`/freelancer/${id}`, data),
+  // remover: (id) => axiosClient.delete(`/freelancer/${id}`),
 };
 
 export default FreelancerService;

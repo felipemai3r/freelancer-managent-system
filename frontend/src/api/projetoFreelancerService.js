@@ -8,13 +8,13 @@ import axiosClient from "./axiosClient";
  */
 const ProjetoFreelancerService = {
   listByProject: (projetoId) =>
-    axiosClient.get(`/api/projetos/${projetoId}/freelancers`),
+    axiosClient.get(`/projetos/${projetoId}/freelancers`),
 
   addToProject: (projetoId, payload) =>
-    axiosClient.post(`/api/projetos/${projetoId}/freelancers`, payload),
+    axiosClient.post(`/projetos/${projetoId}/freelancers`, payload),
 
   removeFromProject: (projetoId, freelancerId) =>
-    axiosClient.delete(`/api/projetos/${projetoId}/freelancers/${freelancerId}`),
+    axiosClient.delete(`/projetos/${projetoId}/freelancers/${freelancerId}`),
 };
 
 export default ProjetoFreelancerService;
