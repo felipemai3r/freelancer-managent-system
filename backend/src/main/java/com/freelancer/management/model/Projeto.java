@@ -27,6 +27,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidade Projeto - Representa um projeto da empresa com freelancers
+ * 
+ * Relacionamentos:
+ * - ManyToOne com Empresa (uma empresa tem vários projetos)
+ * - OneToMany com ProjetoFreelancer (um projeto tem vários freelancers)
+ * - OneToMany com Atividade (um projeto tem várias atividades)
+ * 
+ * @author Felipe Maier
+ * @version 1.0
+ */
 @Table(name = "projeto")
 @Entity
 @Data
@@ -60,7 +71,7 @@ public class Projeto {
     private LocalDate dataFimPrevista;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "status_projeto_enum" )
+    @Column(name = "status", nullable = false)
     private StatusProjeto status = StatusProjeto.PLANEJAMENTO;
 
     // ========== TIMESTAMPS AUTOMÁTICOS ==========
@@ -68,19 +79,27 @@ public class Projeto {
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
-    @UpdateTimestamp
+    @UpdateTimestamp // ← Atualiza automaticamente a cada modificação
     @Column(name = "atualizado_em", nullable = false)
     private LocalDateTime atualizadoEm;
 
-    // Relacionamentos
-
+    // ========== RELACIONAMENTOS ==========
+    
+    /**
+     * CORRIGIDO: CascadeType removido para evitar deletar freelancers
+     * Apenas remove o relacionamento da tabela projeto_freelancer
+     */
     @OneToMany(mappedBy = "projeto", orphanRemoval = true)
     private List<ProjetoFreelancer> projetoFreelancers = new ArrayList<>();
 
+    /**
+     * CORRETO: CascadeType.ALL mantido para atividades
+     * Quando projeto é deletado, suas atividades também devem ser
+     */
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Atividade> atividades = new ArrayList<>();
-    /*
-    */
+
+    // ========== MÉTODOS DE NEGÓCIO ==========
 
     /**
      * Verifica se o projeto está ativo (não foi cancelado nem concluído)
@@ -145,12 +164,11 @@ public class Projeto {
         if (atividades == null || atividades.isEmpty()) {
             return 0.0;
         }
-
+        
         long atividadesConcluidas = atividades.stream()
-                .filter(atividade -> atividade
-                        .getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
+                .filter(atividade -> atividade.getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
                 .count();
-
+        
         return (double) atividadesConcluidas / atividades.size() * 100;
     }
 
@@ -162,8 +180,7 @@ public class Projeto {
             return 0;
         }
         return (int) atividades.stream()
-                .filter(atividade -> atividade
-                        .getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
+                .filter(atividade -> atividade.getStatus() == com.freelancer.management.model.enums.StatusAtividade.CONCLUIDA)
                 .count();
     }
 

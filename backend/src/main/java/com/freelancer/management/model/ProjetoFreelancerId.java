@@ -1,12 +1,13 @@
 package com.freelancer.management.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Objects;
-import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
 
 /**
  * Classe de Chave Composta para ProjetoFreelancer
@@ -18,7 +19,6 @@ import lombok.AllArgsConstructor;
  * 
  * Esta classe representa a chave primária composta: (projeto_id, freelancer_id)
  */
-
 @Embeddable
 @Data
 @NoArgsConstructor

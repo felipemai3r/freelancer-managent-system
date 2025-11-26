@@ -3,6 +3,8 @@ package com.freelancer.management.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,28 +12,31 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.freelancer.management.model.enums.Prioridade;
 import com.freelancer.management.model.enums.StatusTarefa;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Table(name = "tarefa")
-@Data
 @Entity
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Tarefa {
 
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -42,7 +47,7 @@ public class Tarefa {
     @JoinColumn(name = "freelancer_id", nullable = false)
     private Freelancer freelancer;
 
-    @Column(name = "titulo", nullable = false, length = 255)
+    @Column(name = "titulo", nullable = false)
     private String titulo;
 
     @Column(name = "descricao", columnDefinition = "TEXT")
@@ -66,62 +71,35 @@ public class Tarefa {
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
-    @UpdateTimestamp // ← TROCAR AQUI!
+    @UpdateTimestamp
     @Column(name = "atualizado_em", nullable = false)
     private LocalDateTime atualizadoEm;
 
-    // Metodos de negocio
+    // Relacionamento com Entrega (quando criar a entidade)
+    // @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private List<Entrega> entregas = new ArrayList<>();
 
-    public void atualizarStatus(StatusTarefa novoStatus) {
-        // Regras de transição de status podem ser implementadas aqui
-        this.status = novoStatus;
-    }
-
-    public boolean isAtrasada() {
-        if (this.prazo == null) {
-            return false;
-        }
-        return LocalDate.now().isAfter(this.prazo) &&
-                (this.status == StatusTarefa.PENDENTE || this.status == StatusTarefa.EM_PROGRESSO);
+    // Métodos de negócio
+    public boolean isPendente() {
+        return this.status == StatusTarefa.PENDENTE;
     }
 
     public boolean isConcluida() {
         return this.status == StatusTarefa.CONCLUIDA;
     }
 
-    public boolean isPendente() {
-        return this.status == StatusTarefa.PENDENTE || this.status == StatusTarefa.EM_PROGRESSO;
+    public boolean isPrazoVencido() {
+        return prazo != null && LocalDate.now().isAfter(prazo);
     }
 
-    public boolean isNaoInciada() {
-        return this.status == StatusTarefa.PENDENTE;
+    public boolean isPrazoProximo() {
+        if (prazo == null) return false;
+        return LocalDate.now().plusDays(3).isAfter(prazo);
     }
 
-    public boolean isEmProgresso() {
-        return this.status == StatusTarefa.EM_PROGRESSO;
+    public void  atualizarStatus(StatusTarefa novoStatus) {
+        this.status = novoStatus;
     }
 
-    public boolean isCancelada() {
-        return this.status == StatusTarefa.CANCELADA;
-    }
 
 }
-
-/**
- * id BIGSERIAL PRIMARY KEY,
- * atividade_id BIGINT NOT NULL REFERENCES atividade(id) ON DELETE CASCADE,
- * freelancer_id BIGINT NOT NULL REFERENCES freelancer(id) ON DELETE RESTRICT,
- * titulo VARCHAR(255) NOT NULL,
- * descricao TEXT,
- * prioridade VARCHAR(20) NOT NULL DEFAULT 'MEDIA'
- * CHECK (prioridade IN ('BAIXA', 'MEDIA', 'ALTA', 'URGENTE')),
- * prazo DATE,
- * valor DECIMAL(10,2),
- * status VARCHAR(30) NOT NULL DEFAULT 'PENDENTE'
- * CHECK (status IN ('PENDENTE', 'EM_PROGRESSO', 'AGUARDANDO_ENTREGA',
- * 'ENTREGA_RECEBIDA', 'APROVADA', 'REVISAO_NECESSARIA',
- * 'CONCLUIDA', 'CANCELADA')),
- * criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- * atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- * );
- */

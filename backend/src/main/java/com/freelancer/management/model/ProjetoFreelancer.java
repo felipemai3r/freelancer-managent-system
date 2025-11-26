@@ -1,11 +1,14 @@
 package com.freelancer.management.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -15,7 +18,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 /**
  * Entidade ProjetoFreelancer - Tabela associativa N:N entre Projeto e Freelancer
@@ -29,8 +31,6 @@ import lombok.NoArgsConstructor;
  * @author Felipe Maier
  * @version 1.0
  */
-
-
 @Table(name = "projeto_freelancer")
 @Entity
 @Data
@@ -38,11 +38,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProjetoFreelancer {
 
+    // ========== CHAVE COMPOSTA ==========
     @EmbeddedId
     private ProjetoFreelancerId id;
 
     // ========== RELACIONAMENTOS ==========
-
+    
     @ManyToOne
     @MapsId("projetoId") // ← Mapeia para o campo 'projetoId' dentro de ProjetoFreelancerId
     @JoinColumn(name = "projeto_id", nullable = false)
@@ -54,10 +55,10 @@ public class ProjetoFreelancer {
     private Freelancer freelancer;
 
     // ========== ATRIBUTOS ADICIONAIS ==========
-
+    
     @Column(name = "papel", nullable = false, length = 100)
     private String papel; // Ex: "Designer Principal", "Desenvolvedor Backend"
-
+    
     @Column(name = "valor_acordado", precision = 10, scale = 2)
     private BigDecimal valorAcordado;
 
@@ -66,7 +67,7 @@ public class ProjetoFreelancer {
     private LocalDateTime atribuidoEm;
 
     // ========== CONSTRUTOR AUXILIAR ==========
-
+    
     /**
      * Construtor de conveniência para criar o relacionamento
      */
@@ -77,15 +78,4 @@ public class ProjetoFreelancer {
         this.papel = papel;
         this.valorAcordado = valorAcordado;
     }
-
 }
-
-/**
- * CREATE TABLE IF NOT EXISTS projeto_freelancer (
- * projeto_id BIGINT NOT NULL REFERENCES projeto(id) ON DELETE CASCADE,
- * freelancer_id BIGINT NOT NULL REFERENCES freelancer(id) ON DELETE CASCADE,
- * papel VARCHAR(100) NOT NULL,
- * valor_acordado DECIMAL(10,2),
- * atribuido_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- * PRIMARY KEY (projeto_id, freelancer_id)
- */

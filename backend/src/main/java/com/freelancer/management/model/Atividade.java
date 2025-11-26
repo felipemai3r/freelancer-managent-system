@@ -9,11 +9,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.freelancer.management.model.enums.StatusAtividade;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,22 +25,36 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidade Atividade - Representa uma atividade dentro de um projeto
+ * 
+ * Relacionamentos:
+ * - ManyToOne com Projeto (uma atividade pertence a um projeto)
+ * - OneToMany com Tarefa (uma atividade tem várias tarefas)
+ * 
+ * Nota: Atividades são organizadas por 'ordem' dentro do projeto
+ * 
+ * @author Felipe Maier
+ * @version 1.0
+ */
 @Table(name = "atividade")
-@Data
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Atividade {
-
+    
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
+    // ========== RELACIONAMENTO COM PROJETO ==========
     @ManyToOne
     @JoinColumn(name = "projeto_id", nullable = false)
     private Projeto projeto;
 
+    // ========== DADOS DA ATIVIDADE ==========
+    
     @Column(name = "nome", nullable = false)
     private String nome;
 
@@ -48,110 +64,60 @@ public class Atividade {
     @Column(name = "ordem", nullable = false)
     private Integer ordem;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private StatusAtividade status;
+    @Enumerated(EnumType.STRING) // ← CORRIGIDO: Adiciona annotation para enum
+    @Column(name = "status", nullable = false, length = 20)
+    private StatusAtividade status = StatusAtividade.PENDENTE;
 
-    @CreationTimestamp
+    // ========== TIMESTAMPS AUTOMÁTICOS ==========
+    
+    @CreationTimestamp // ← CORRIGIDO: Usa annotation do Hibernate
     @Column(name = "criado_em", nullable = false, updatable = false)
-    private LocalDateTime criadoEm;
+    private LocalDateTime criadoEm; // ← CORRIGIDO: Mudado de Data para LocalDateTime
 
-    @UpdateTimestamp
+    @UpdateTimestamp // ← CORRIGIDO: Atualiza automaticamente
     @Column(name = "atualizado_em", nullable = false)
-    private LocalDateTime atualizadoEm;
+    private LocalDateTime atualizadoEm; // ← CORRIGIDO: Mudado de Data para LocalDateTime
 
-    @OneToMany(mappedBy = "atividade", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    // ========== RELACIONAMENTO COM TAREFAS ==========
+    
+    /**
+     * CORRIGIDO: Adiciona relacionamento OneToMany com Tarefa
+     * CascadeType.ALL: quando atividade é deletada, suas tarefas também são
+     */
+    @OneToMany(mappedBy = "atividade", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tarefa> tarefas = new ArrayList<>();
 
-    // Regras de negocio
+    // ========== MÉTODOS DE NEGÓCIO ==========
+
+    /**
+     * Verifica se a atividade está concluída
+     */
+    public boolean isConcluida() {
+        return this.status == StatusAtividade.CONCLUIDA;
+    }
 
     /**
      * Verifica se a atividade está pendente
-     * 
-     * @return true se estiver pendente, false caso contrário
      */
-    public boolean estaPendente() {
+    public boolean isPendente() {
         return this.status == StatusAtividade.PENDENTE;
     }
 
     /**
      * Verifica se a atividade está em andamento
-     * 
-     * @return true se estiver em andamento, false caso contrário
      */
-    public boolean estaEmAndamento() {
+    public boolean isEmAndamento() {
         return this.status == StatusAtividade.EM_ANDAMENTO;
     }
 
     /**
-     * Verifica se a atividade está concluída
-     * 
-     * @return true se estiver concluída, false caso contrário
+     * Verifica se a atividade foi cancelada
      */
-    public boolean estaConcluida() {
-        return this.status == StatusAtividade.CONCLUIDA;
-    }
-
-    /**
-     * Verifica se a atividade está cancelada
-     * 
-     * @return true se estiver cancelada, false caso contrário
-     */
-    public boolean estaCancelada() {
+    public boolean isCancelada() {
         return this.status == StatusAtividade.CANCELADA;
     }
 
     /**
-     * Calcula o percentual de tarefas concluídas na atividade
-     * 
-     * @return percentual de tarefas concluídas (0.0 a 100.0)
-     */
-    public double percentualConcluido() {
-        if (tarefas.isEmpty()) {
-            return 0.0;
-        }
-        long concluidas = tarefas.stream()
-                .filter(Tarefa::isConcluida)
-                .count();
-        return (concluidas * 100.0) / tarefas.size();
-    }
-
-    /**
-     * Retorna a lista de tarefas concluídas na atividade
-     * 
-     * @return lista de tarefas concluídas
-     */
-    public List<Tarefa> getTarefasConcluidas() {
-        List<Tarefa> concluidas = new ArrayList<>();
-        for (Tarefa tarefa : tarefas) {
-            if (tarefa.isConcluida()) {
-                concluidas.add(tarefa);
-            }
-        }
-        return concluidas;
-    }
-
-    public List<Tarefa> getTarefasPendentes() {
-        List<Tarefa> concluidas = new ArrayList<>();
-        for (Tarefa tarefa : tarefas) {
-            if (tarefa.isPendente()) {
-                concluidas.add(tarefa);
-            }
-        }
-        return concluidas;
-    }
-
-    public List<Tarefa> getTarefasNaoIniciadas() {
-        List<Tarefa> concluidas = new ArrayList<>();
-        for (Tarefa tarefa : tarefas) {
-            if (tarefa.isNaoInciada()) {
-                concluidas.add(tarefa);
-            }
-        }
-        return concluidas;
-    }
-
-    /*
      * Retorna lista de tarefas da atividade
      */
     public List<Tarefa> obterTarefas() {
@@ -166,6 +132,23 @@ public class Atividade {
     }
 
     /**
+     * Calcula o progresso da atividade baseado nas tarefas concluídas
+     * 
+     * @return percentual de 0 a 100
+     */
+    public double calcularProgresso() {
+        if (tarefas == null || tarefas.isEmpty()) {
+            return 0.0;
+        }
+        
+        long tarefasConcluidas = tarefas.stream()
+                .filter(tarefa -> tarefa.getStatus() == com.freelancer.management.model.enums.StatusTarefa.CONCLUIDA)
+                .count();
+        
+        return (double) tarefasConcluidas / tarefas.size() * 100;
+    }
+
+    /**
      * Retorna número de tarefas concluídas
      */
     public int obterNumeroTarefasConcluidas() {
@@ -173,7 +156,7 @@ public class Atividade {
             return 0;
         }
         return (int) tarefas.stream()
-                .filter(Tarefa::isConcluida)
+                .filter(tarefa -> tarefa.getStatus() == com.freelancer.management.model.enums.StatusTarefa.CONCLUIDA)
                 .count();
     }
 
@@ -200,20 +183,21 @@ public class Atividade {
     public void moverParaBaixo() {
         this.ordem++;
     }
-
 }
 
 /*
+ * SQL DE REFERÊNCIA:
+ * 
  * CREATE TABLE IF NOT EXISTS atividade (
- * id BIGSERIAL PRIMARY KEY,
- * projeto_id BIGINT NOT NULL REFERENCES projeto(id) ON DELETE CASCADE,
- * nome VARCHAR(255) NOT NULL,
- * descricao TEXT,
- * ordem INTEGER NOT NULL,
- * status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'
- * CHECK (status IN ('PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA')),
- * criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- * atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- * UNIQUE(projeto_id, ordem)
+ *     id BIGSERIAL PRIMARY KEY,
+ *     projeto_id BIGINT NOT NULL REFERENCES projeto(id) ON DELETE CASCADE,
+ *     nome VARCHAR(255) NOT NULL,
+ *     descricao TEXT,
+ *     ordem INTEGER NOT NULL,
+ *     status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'
+ *         CHECK (status IN ('PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA')),
+ *     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ *     atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ *     UNIQUE(projeto_id, ordem)
  * );
  */
