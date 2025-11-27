@@ -1,20 +1,28 @@
-import React from "react";
-import styles from "./EnterpriseCard.module.css";
-import "animate.css";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './EnterpriseCard.module.css';
 
-function EnterpriseCard({ empresa }) {
+const EnterpriseCard = ({ empresa }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/empresas/${empresa.id}`);
+  };
+
   return (
-    <div className={`${styles.card} animate__animated animate__fadeInUp`}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>
-          {empresa.nomeFantasia || empresa.nome_fantasia}
-        </h3>
-      </div>
-
-      <p className={styles.meta}><b>CNPJ:</b> {empresa.cnpj}</p>
-      <p className={styles.desc}><b>Setor:</b> {empresa.setor || "Não informado"}</p>
+    <div 
+      className={`${styles.card} animate__animated animate__fadeInUp`}
+      onClick={handleClick}
+    >
+      <h3 className={styles.name}>{empresa.nomeFantasia || 'Sem nome'}</h3>
+      <p className={styles.info}>
+        <strong>CNPJ:</strong> {empresa.cnpj || 'Não informado'}
+      </p>
+      <p className={styles.info}>
+        <strong>Setor:</strong> {empresa.setor || 'Não especificado'}
+      </p>
     </div>
   );
-}
+};
 
-export default React.memo(EnterpriseCard);
+export default EnterpriseCard;

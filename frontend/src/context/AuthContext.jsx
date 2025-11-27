@@ -1,114 +1,90 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import authService from '../api/authService';
+import axiosClient from '../api/axiosClient';
 
-import React, { createContext, useContext, useReducer, useEffect } from "react";
-import AuthService from "../api/authService";
-import axiosClient from "../api/axiosClient";
+const AuthStateContext = createContext();
+const AuthDispatchContext = createContext();
 
+export const AuthProvider = ({ children }) => {
+  const [state, setState] = useState({
+    isAuthenticated: false,
+    user: null,
+    token: null,
+    loading: true,
+    error: null,
+  });
 
-const AuthStateContext = createContext(null);
-const AuthDispatchContext = createContext(null);
-
-
-const initialState = {
-  isAuthenticated: false,
-  user: null,
-  token: null,
-  loading: false,
-  error: null,
-};
-
-
-function authReducer(state, action) {
-  switch (action.type) {
-    case "INIT_FROM_STORAGE":
-      return {
-        ...state,
-        isAuthenticated: !!action.payload?.token,
-        token: action.payload?.token || null,
-        user: action.payload?.user || null,
-      };
-    case "LOGIN_START":
-      return { ...state, loading: true, error: null };
-    case "LOGIN_SUCCESS":
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: true,
-        token: action.payload.token,
-        user: action.payload.user,
-      };
-    case "LOGIN_FAILURE":
-      return { ...state, loading: false, error: action.payload };
-    case "LOGOUT":
-      return { ...initialState };
-    default:
-      return state;
-  }
-}
-
-
-export function AuthProvider({ children }) {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-
-
-  // Inicializar do localStorage
   useEffect(() => {
-    try {
-      const token = localStorage.getItem("token");
-      const userJson = localStorage.getItem("user");
-      const user = userJson ? JSON.parse(userJson) : null;
-      if (token) {
-        dispatch({ type: "INIT_FROM_STORAGE", payload: { token, user } });
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setState({
+          isAuthenticated: true,
+          user,
+          token,
+          loading: false,
+          error: null,
+        });
+      } catch (err) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setState((prev) => ({ ...prev, loading: false }));
       }
-    } catch (e) {
-      console.error("Erro ao carregar auth do storage:", e);
+    } else {
+      setState((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 
-
   const login = async (email, senha) => {
-    dispatch({ type: "LOGIN_START" });
     try {
-      const res = await AuthService.login({ email, senha });
-      const data = res.data;
-      const token = data.token;
-      const user = data.user;
-     
-      if (!token) {
-        throw new Error("Token não encontrado na resposta");
-      }
-     
-      // Salvar no localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-     
-      // Atualizar header do axios
-      axiosClient.defaults.headers.common.Authorization = `Bearer ${token}`;
-     
-      // Atualizar estado
-      dispatch({ type: "LOGIN_SUCCESS", payload: { token, user } });
-     
-      // ✅ REDIRECIONAR USANDO window.location (SEMPRE FUNCIONA)
-      window.location.href = "/dashboard";
-     
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      
+      const data = await authService.login(email, senha);
+      
+      // API retorna: { token, tipo: "Bearer", pessoa: {...} }
+      const { token, pessoa } = data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(pessoa));
+      
+      axiosClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      setState({
+        isAuthenticated: true,
+        user: pessoa,
+        token,
+        loading: false,
+        error: null,
+      });
+      
       return { ok: true };
-    } catch (err) {
-      const message = err.response?.data?.message || err.message || "Erro no login";
-      dispatch({ type: "LOGIN_FAILURE", payload: message });
-      return { ok: false, error: message };
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || 'Erro ao fazer login';
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: errorMsg,
+      }));
+      return { ok: false, error: errorMsg };
     }
   };
 
-
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    axiosClient.defaults.headers.common.Authorization = undefined;
-    dispatch({ type: "LOGOUT" });
-   
-    // ✅ REDIRECIONAR USANDO window.location
-    window.location.href = "/login";
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete axiosClient.defaults.headers.common['Authorization'];
+    
+    setState({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      loading: false,
+      error: null,
+    });
   };
-
 
   return (
     <AuthStateContext.Provider value={state}>
@@ -117,20 +93,20 @@ export function AuthProvider({ children }) {
       </AuthDispatchContext.Provider>
     </AuthStateContext.Provider>
   );
-}
+};
 
+export const useAuthState = () => {
+  const context = useContext(AuthStateContext);
+  if (!context) {
+    throw new Error('useAuthState must be used within AuthProvider');
+  }
+  return context;
+};
 
-// Hooks
-export function useAuthState() {
-  const ctx = useContext(AuthStateContext);
-  if (ctx === undefined) throw new Error("useAuthState must be used within AuthProvider");
-  return ctx;
-}
-
-
-export function useAuth() {
-  const ctx = useContext(AuthDispatchContext);
-  if (ctx === undefined) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
-}
-
+export const useAuthDispatch = () => {
+  const context = useContext(AuthDispatchContext);
+  if (!context) {
+    throw new Error('useAuthDispatch must be used within AuthProvider');
+  }
+  return context;
+};

@@ -1,37 +1,83 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import EmpresaService from "../../api/empresaService";
-import styles from "./CompanyDetail.module.css";
-import "animate.css";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import useCrud from '../../hooks/useCrud';
+import empresaService from '../../api/empresaService';
+import Spinner from '../../components/Spinner';
+import styles from './CompanyDetail.module.css';
 
-export default function CompanyDetail() {
+const CompanyDetail = () => {
   const { id } = useParams();
+  const { items, loading, fetchAll } = useCrud(empresaService);
   const [empresa, setEmpresa] = useState(null);
 
   useEffect(() => {
-    // Não existe GET /empresa/{id}, então filtramos
-    EmpresaService.list().then(res => {
-      const found = res.data.find(e => String(e.id) === String(id));
-      setEmpresa(found);
-    });
-  }, [id]);
+    fetchAll();
+  }, [fetchAll]);
 
-  if (!empresa) return <p className={styles.loading}>Carregando...</p>;
+  useEffect(() => {
+    if (items.length > 0) {
+      const found = items.find((e) => e.id === parseInt(id));
+      setEmpresa(found || null);
+    }
+  }, [items, id]);
+
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <Spinner size="large" />
+        <p>Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!empresa) {
+    return (
+      <div className={styles.page}>
+        <p className={styles.error}>Empresa não encontrada.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`${styles.page} animate__animated animate__fadeInUp`}>
-      <h2 className={styles.title}>Empresa #{empresa.id}</h2>
+      <h1 className={styles.title}>Empresa #{empresa.id}</h1>
 
       <div className={styles.card}>
-        <p><strong>Nome Fantasia:</strong> {empresa.nomeEmpresa}</p>
-        <p><strong>CNPJ:</strong> {empresa.cnpj}</p>
-        <p><strong>Email:</strong> {empresa.pessoa.email}</p>
-        <p><strong>Setor:</strong> {empresa.setor || "Não informado"}</p>
-      </div>
+        <div className={styles.row}>
+          <strong>Nome Fantasia:</strong>
+          <span>{empresa.nomeFantasia || 'Não informado'}</span>
+        </div>
 
-      {/* Habilitar no futuro */}
-      {/* <button className="btn">Editar</button> */}
-      {/* <button className="btn danger">Excluir</button> */}
+        <div className={styles.row}>
+          <strong>Razão Social:</strong>
+          <span>{empresa.razaoSocial || 'Não informado'}</span>
+        </div>
+
+        <div className={styles.row}>
+          <strong>CNPJ:</strong>
+          <span>{empresa.cnpj || 'Não informado'}</span>
+        </div>
+
+        <div className={styles.row}>
+          <strong>Email:</strong>
+          <span>{empresa.email || 'Não informado'}</span>
+        </div>
+
+        <div className={styles.row}>
+          <strong>Setor:</strong>
+          <span>{empresa.setor || 'Não especificado'}</span>
+        </div>
+
+        {/* O BACKEND NÃO IMPLEMENTOU PUT / DELETE */}
+        {/* 
+        <div className={styles.actions}>
+          <button className="btn primary">Editar</button>
+          <button className="btn danger">Remover</button>
+        </div>
+        */}
+      </div>
     </div>
   );
-}
+};
+
+export default CompanyDetail;

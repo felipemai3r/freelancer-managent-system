@@ -1,42 +1,60 @@
-import React, { useEffect, useState, useCallback } from "react";
-import ProjetoService from "../../api/projetoService";
-import ProjectCard from "../../components/ProjectCard";
-import styles from "./Projects.module.css";
-import "animate.css";
+import React, { useEffect, useState } from 'react';
+import ProjectCard from '../../components/ProjectCard';
+import Spinner from '../../components/Spinner';
+import projetoService from '../../api/projetoService';
+import styles from './Projects.module.css';
 
-export default function Projects() {
+const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchProjects = useCallback(async () => {
-    setLoading(true);
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
     try {
-      const res = await ProjetoService.list();
-      setProjects(res.data);
+      setLoading(true);
+      const response = await projetoService.listar();
+      setProjects(response.data);
     } catch (err) {
-      setError(err.message || "Erro ao buscar projetos");
+      console.error('Erro ao carregar projetos:', err);
+      setError('Erro ao carregar projetos');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-
-  if (loading) return <p className={styles.loading}>Carregando projetos...</p>;
-  if (error) return <p className={styles.error}>Erro: {error}</p>;
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
-    <section className={`${styles.page} animate__animated animate__fadeInUp`}>
-      <h2 className={styles.title}>Projetos</h2>
+    <div className={`${styles.page} animate__animated animate__fadeInUp`}>
+      <h1 className={styles.title}>Projetos</h1>
 
-      <div className={styles.grid}>
-        {projects.map((p) => (
-          <ProjectCard key={p.id} project={p} onOpen={(id) => console.log("Detalhe:", id)} />
-        ))}
-      </div>
-    </section>
+      {error && (
+        <div className={styles.error}>
+          {error}
+        </div>
+      )}
+
+      {!error && projects.length === 0 ? (
+        <p className={styles.empty}>Nenhum projeto cadastrado ainda.</p>
+      ) : (
+        <div className={styles.grid}>
+          {projects.map((projeto) => (
+            <ProjectCard key={projeto.id} projeto={projeto} />
+          ))}
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default Projects;

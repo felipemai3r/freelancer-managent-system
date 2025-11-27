@@ -1,14 +1,29 @@
-import React from "react";
-import styles from "./Input.module.css";
+import React from 'react';
 
-function Input({ label, helper, ...rest }) {
+const Input = ({ 
+  type = 'text',
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  disabled = false,
+  className = '',
+  ...props
+}) => {
   return (
-    <div className={styles.wrapper}>
-      {label && <label className={styles.label}>{label}</label>}
-      <input className={styles.input} {...rest} />
-      {helper && <p className={styles.helper}>{helper}</p>}
-    </div>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      required={required}
+      disabled={disabled}
+      className={`input ${className}`}
+      {...props}
+    />
   );
-}
+};
 
 export default Input;

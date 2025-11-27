@@ -1,25 +1,37 @@
-import axiosClient from "./axiosClient";
+import axiosClient from './axiosClient';
 
-/**
- * Endpoints sugeridos:
- * GET    /atividades/{atividadeId}/tarefas
- * POST   /atividades/{atividadeId}/tarefas
- * PUT    /tarefas/{id}
- * DELETE /tarefas/{id}
- * PATCH  /tarefas/{id}/status  (body: { status })
- */
-const TarefaService = {
-  listByAtividade: (atividadeId, params) =>
-    axiosClient.get(`/atividades/${atividadeId}/tarefas`, { params }),
+const tarefaService = {
+  listarPorAtividade: async (atividadeId) => {
+    const response = await axiosClient.get(`/api/atividades/${atividadeId}/tarefas`);
+    return response;
+  },
 
-  createForAtividade: (atividadeId, payload) =>
-    axiosClient.post(`/atividades/${atividadeId}/tarefas`, payload),
+  buscarPorId: async (atividadeId, tarefaId) => {
+    const response = await axiosClient.get(`/api/atividades/${atividadeId}/tarefas/${tarefaId}`);
+    return response;
+  },
 
-  update: (id, payload) => axiosClient.put(`/tarefas/${id}`, payload),
-  remove: (id) => axiosClient.delete(`/tarefas/${id}`),
+  criar: async (atividadeId, payload) => {
+    const response = await axiosClient.post(`/api/atividades/${atividadeId}/tarefas`, payload);
+    return response;
+  },
 
-  setStatus: (id, status) =>
-    axiosClient.patch(`/tarefas/${id}/status`, { status }),
+  editar: async (atividadeId, tarefaId, payload) => {
+    const response = await axiosClient.put(`/api/atividades/${atividadeId}/tarefas/${tarefaId}`, payload);
+    return response;
+  },
+
+  atualizarStatus: async (atividadeId, tarefaId, status) => {
+    const response = await axiosClient.put(`/api/atividades/${atividadeId}/tarefas/${tarefaId}`, {
+      status,
+    });
+    return response;
+  },
+
+  remover: async (atividadeId, tarefaId) => {
+    const response = await axiosClient.delete(`/api/atividades/${atividadeId}/tarefas/${tarefaId}`);
+    return response;
+  },
 };
 
-export default TarefaService;
+export default tarefaService;

@@ -1,75 +1,105 @@
-import React, { useEffect, useState } from "react";
-import EmpresaService from "../../api/empresaService";
-import useCrud from "../../hooks/useCrud";
-import EnterpriseCard from "../../components/EnterpriseCard";
-import EntityModal from "../../components/EntityModal";
+import React, { useEffect, useState } from 'react';
+import useCrud from '../../hooks/useCrud';
+import empresaService from '../../api/empresaService';
+import EnterpriseCard from '../../components/EnterpriseCard';
+import EntityModal from '../../components/EntityModal';
+import Button from '../../components/ui/Button';
+import Spinner from '../../components/Spinner';
+import styles from './Companies.module.css';
 
-import styles from "./Companies.module.css";
-import "animate.css";
+const Companies = () => {
+  const { items, loading, error, fetchAll, create } = useCrud(empresaService);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({
+    nomeFantasia: '',
+    razaoSocial: '',
+    cnpj: '',
+    email: '',
+    setor: '',
+  });
 
-const fields = [
-  { name: "nomeEmpresa", label: "Nome da Empresa", required: true, placeholder: "Nome da empresa" },
-  { name: "cnpj", label: "CNPJ", required: true, placeholder: "00.000.000/0000-00" },
-  { name: "telefone", label: "Telefone", required: false, placeholder: "(00) 00000-0000" },
-  { name: "endereco", label: "Endereço", required: false, placeholder: "Endereço completo" },
-];
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
-export default function Companies() {
-  const { items, loading, error, fetchAll, create } = useCrud(EmpresaService);
-  const [modalOpen, setModalOpen] = useState(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  const handleSubmit = async (data) => {
+  const handleSubmit = async (formData) => {
     try {
-      await create(data);
-      setModalOpen(false);
-      fetchAll(); // Recarrega a lista
+      await create(formData);
+      setShowModal(false);
+      setForm({
+        nomeFantasia: '',
+        razaoSocial: '',
+        cnpj: '',
+        email: '',
+        setor: '',
+      });
+      fetchAll();
     } catch (err) {
-      console.error("Erro ao salvar empresa", err);
-      alert("Erro ao salvar: " + (err.message || err));
+      alert('Erro ao salvar: ' + (err.message || err));
     }
   };
 
-  return (
-    <div className={`${styles.container} animate__animated animate__fadeInUp`}>
-      <div className={styles.headerRow}>
-        <h2 className={styles.title}>Empresas</h2>
+  const fields = [
+    { name: 'nomeFantasia', label: 'Nome Fantasia', required: true },
+    { name: 'razaoSocial', label: 'Razão Social', required: true },
+    { name: 'cnpj', label: 'CNPJ', required: true },
+    { name: 'email', label: 'Email', required: false },
+    { name: 'setor', label: 'Setor', required: false },
+  ];
 
+  return (
+    <div className={`${styles.page} animate__animated animate__fadeInUp`}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Empresas</h1>
         <div className={styles.actions}>
-          <button className="btn ghost" onClick={() => fetchAll()}>Atualizar</button>
-          <button className="btn primary" onClick={() => setModalOpen(true)}>Nova Empresa</button>
+          <Button variant="ghost" onClick={() => fetchAll()}>
+            Atualizar
+          </Button>
+          <Button variant="primary" onClick={() => setShowModal(true)}>
+            Nova Empresa
+          </Button>
         </div>
       </div>
 
-      {loading && <p>Carregando...</p>}
-      {error && <p>Erro ao carregar empresas: {error.message}</p>}
+      {loading && (
+        <div className={styles.loading}>
+          <Spinner size="large" />
+          <p>Carregando...</p>
+        </div>
+      )}
 
-      <div className={styles.listGrid}>
-        {/* ✅ VALIDAÇÃO ADICIONADA AQUI */}
-        {items && items.length > 0 ? (
-          items.map(e => (
-            <EnterpriseCard key={e.id} empresa={e} />
-          ))
-        ) : (
-          !loading && <p>Nenhuma empresa encontrada.</p>
-        )}
-      </div>
+      {error && !loading && (
+        <p className={styles.error}>Erro ao carregar empresas.</p>
+      )}
 
-      {modalOpen && (
+      {!loading && !error && items.length === 0 && (
+        <p className={styles.empty}>Nenhuma empresa cadastrada ainda.</p>
+      )}
+
+      {!loading && !error && items.length > 0 && (
+        <div className={styles.grid}>
+          {items.map((empresa) => (
+            <EnterpriseCard key={empresa.id} empresa={empresa} />
+          ))}
+        </div>
+      )}
+
+      {showModal && (
         <EntityModal
-          onClose={() => setModalOpen(false)}
-          handleSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
-            handleSubmit(data);
-          }}
-          handleChange={() => {}}
-          form={{}}
+          onClose={() => setShowModal(false)}
+          handleSubmit={handleSubmit}
+          handleChange={handleChange}
+          form={form}
           fields={fields}
         />
       )}
     </div>
   );
-}
+};
+
+export default Companies;

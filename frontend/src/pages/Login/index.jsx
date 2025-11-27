@@ -1,73 +1,108 @@
-import React, { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import styles from "./Login.module.css";
-import "animate.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthState, useAuthDispatch } from '../../context/AuthContext';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import styles from './Login.module.css';
 
-export default function Login() {
-  const { login } = useAuth();
-  const [form, setForm] = useState({ email: "", senha: "" });
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', senha: '' });
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  
+  const { isAuthenticated, loading } = useAuthState();
+  const { login } = useAuthDispatch();
+  const navigate = useNavigate();
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
     setBusy(true);
-    setError(null);
 
-    const res = await login(form.email, form.senha);
-
-    if (!res.ok) {
-      setError(res.error || "Erro ao autenticar");
+    try {
+      const result = await login(formData.email, formData.senha);
+      if (result.ok) {
+        navigate('/dashboard');
+      } else {
+        setErrorMsg(result.error || 'Erro ao fazer login');
+      }
+    } catch (err) {
+      setErrorMsg('Erro ao fazer login. Tente novamente.');
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <div className={`${styles.page} animate__animated animate__fadeIn`}>
-      <div className={`${styles.card} card`}>
-        <h2>Entrar</h2>
-        <p className={styles.muted}>Use seu email e senha para acessar</p>
+      <div className={styles.card}>
+        <h2 className={styles.title}>Entrar no DeFreela</h2>
+        <p className={styles.subtitle}>Acesse sua conta</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <label>
-            <span>Email</span>
-            <input
-              name="email"
+          <div className={styles.field}>
+            <label htmlFor="email">Email</label>
+            <Input
+              id="email"
               type="email"
-              value={form.email}
-              onChange={onChange}
-              placeholder="seu@exemplo.com"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="seu@email.com"
               required
+              disabled={busy}
             />
-          </label>
+          </div>
 
-          <label>
-            <span>Senha</span>
-            <input
-              name="senha"
+          <div className={styles.field}>
+            <label htmlFor="senha">Senha</label>
+            <Input
+              id="senha"
               type="password"
-              value={form.senha}
-              onChange={onChange}
-              placeholder="••••••••"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+              placeholder="Digite sua senha"
               required
+              disabled={busy}
             />
-          </label>
+          </div>
 
-          {error && <div className={styles.error}>{error}</div>}
+          {errorMsg && (
+            <p className={styles.error}>{errorMsg}</p>
+          )}
 
-          <button className="btn primary" type="submit" disabled={busy}>
-            {busy ? "Entrando..." : "Entrar"}
-          </button>
+          <Button 
+            type="submit" 
+            variant="primary" 
+            disabled={busy}
+            className={styles.submitBtn}
+          >
+            {busy ? 'Entrando...' : 'Entrar'}
+          </Button>
+
+          <p className={styles.note}>
+            ℹ️ Sistema em desenvolvimento. Use credenciais fornecidas pelo backend.
+          </p>
         </form>
-
-        <small className={styles.info}>
-          Backend ainda sem /api/auth/login?  
-          O sistema permanece em modo desenvolvimento.
-        </small>
       </div>
     </div>
   );
-}
+};
+
+export default Login;

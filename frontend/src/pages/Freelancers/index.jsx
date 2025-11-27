@@ -1,39 +1,45 @@
-import React, { useEffect, useState, useCallback } from "react";
-import FreelancerService from "../../api/freelancerService";
-import FreelancerCard from "../../components/FreelancerCard";
-import styles from "./Freelancers.module.css";
-import "animate.css";
+import React, { useEffect } from 'react';
+import useCrud from '../../hooks/useCrud';
+import freelancerService from '../../api/freelancerService';
+import FreelancerCard from '../../components/FreelancerCard';
+import Spinner from '../../components/Spinner';
+import styles from './Freelancers.module.css';
 
-export default function Freelancers() {
-  const [freelancers, setFreelancers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchFreelancers = useCallback(async () => {
-    try {
-      const res = await FreelancerService.listar();
-      setFreelancers(res.data);
-    } catch (err) {
-      console.error("Erro ao carregar freelancers:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+const Freelancers = () => {
+  const { items, loading, error, fetchAll } = useCrud(freelancerService);
 
   useEffect(() => {
-    fetchFreelancers();
-  }, [fetchFreelancers]);
-
-  if (loading) return <p className={styles.loading}>Carregando freelancers...</p>;
+    fetchAll();
+  }, [fetchAll]);
 
   return (
     <div className={`${styles.page} animate__animated animate__fadeInUp`}>
-      <h2 className={styles.title}>Freelancers</h2>
+      <h1 className={styles.title}>Freelancers</h1>
 
-      <div className={styles.grid}>
-        {freelancers.map((freela) => (
-          <FreelancerCard key={freela.id} freela={freela} />
-        ))}
-      </div>
+      {loading && (
+        <div className={styles.loading}>
+          <Spinner size="large" />
+          <p>Carregando freelancers...</p>
+        </div>
+      )}
+
+      {error && !loading && (
+        <p className={styles.error}>Erro ao carregar freelancers.</p>
+      )}
+
+      {!loading && !error && items.length === 0 && (
+        <p className={styles.empty}>Nenhum freelancer cadastrado ainda.</p>
+      )}
+
+      {!loading && !error && items.length > 0 && (
+        <div className={styles.grid}>
+          {items.map((freelancer) => (
+            <FreelancerCard key={freelancer.id} freelancer={freelancer} />
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Freelancers;

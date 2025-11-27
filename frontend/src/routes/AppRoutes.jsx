@@ -1,22 +1,28 @@
-import { Routes, Route } from "react-router-dom";
-import Home from "../pages/Home";
-import Dashboard from "../pages/Dashboard";
-import Companies from "../pages/Companies";
-import Freelancers from "../pages/Freelancers";
-import Projects from "../pages/Projects";
-import CompanyDetail from "../pages/CompanyDetail";
-import FreelancerDetail from "../pages/FreelancerDetail";
-import ProjectDetail from "../pages/ProjectDetail";
-import Login from "../pages/Login";
-import ProtectedRoute from "../components/ProtectedRoute";
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import ProtectedRoute from '../components/ProtectedRoute';
 
-export default function AppRoutes() {
+// Pages
+import Home from '../pages/Home';
+import Login from '../pages/Login';
+import Dashboard from '../pages/Dashboard';
+import Companies from '../pages/Companies';
+import CompanyDetail from '../pages/CompanyDetail';
+import Freelancers from '../pages/Freelancers';
+import FreelancerDetail from '../pages/FreelancerDetail';
+import Projects from '../pages/Projects';
+import ProjectDetail from '../pages/ProjectDetail';
+import Activities from '../pages/Activities';
+import NotFound from '../pages/NotFound';
+
+const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      {/* Rotas Públicas */}
       <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
 
-      {/* Rotas protegidas */}
+      {/* Rotas Protegidas */}
       <Route
         path="/dashboard"
         element={
@@ -25,7 +31,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/empresas"
         element={
@@ -34,7 +39,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/empresas/:id"
         element={
@@ -43,7 +47,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/freelancers"
         element={
@@ -52,7 +55,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/freelancers/:id"
         element={
@@ -61,7 +63,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/projetos"
         element={
@@ -70,7 +71,6 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/projetos/:id"
         element={
@@ -79,6 +79,19 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/atividades"
+        element={
+          <ProtectedRoute>
+            <Activities />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
-}
+};
+
+export default AppRoutes;

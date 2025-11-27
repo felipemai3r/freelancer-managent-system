@@ -1,22 +1,32 @@
-import React from "react";
-import styles from "./FreelancerCard.module.css";
-import "animate.css";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './FreelancerCard.module.css';
 
-function FreelancerCard({ freela }) {
+const FreelancerCard = ({ freelancer }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/freelancers/${freelancer.id}`);
+  };
+
   return (
-    <div className={`${styles.card} animate__animated animate__fadeInUp`}>
-      <div className={styles.row}>
-        <h3 className={styles.name}>{freela.nome}</h3>
-        <span className={styles.badge}>
-          {freela.especialidade || "Sem especialidade"}
-        </span>
+    <div 
+      className={`${styles.card} animate__animated animate__fadeInUp`}
+      onClick={handleClick}
+    >
+      <h3 className={styles.name}>{freelancer.nome || 'Sem nome'}</h3>
+      
+      <div className={styles.badge}>
+        {freelancer.especialidade || freelancer.habilidades || 'Sem especialidade'}
       </div>
 
-      <p className={styles.skills}>
-        <b>Portfólio:</b> {freela.portfolioUrl || "Nenhum"}
-      </p>
+      {freelancer.portfolio && (
+        <p className={styles.portfolio}>
+          <strong>Portfólio:</strong> {freelancer.portfolio}
+        </p>
+      )}
     </div>
   );
-}
+};
 
-export default React.memo(FreelancerCard);
+export default FreelancerCard;

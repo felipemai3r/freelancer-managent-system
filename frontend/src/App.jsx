@@ -1,18 +1,18 @@
 import React from 'react';
-import AppRoutes from './routes/AppRoutes';
-import Navbar from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import AppRoutes from './routes/AppRoutes';
 
-export default function App() {
+const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Navbar />
-        <main className="container" style={{ marginTop: "5rem" }}>
-          <AppRoutes />
-        </main>
+        <AppRoutes />
       </AuthProvider>
     </BrowserRouter>
   );
-}
+};
+
+export default App;

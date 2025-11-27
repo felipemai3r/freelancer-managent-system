@@ -1,26 +1,42 @@
-import React from "react";
-import styles from "./ProjectCard.module.css";
-import "animate.css";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../ui/Button';
+import styles from './ProjectCard.module.css';
 
-function ProjectCard({ project, onOpen }) {
+const ProjectCard = ({ projeto }) => {
+  const navigate = useNavigate();
+
+  const handleView = () => {
+    navigate(`/projetos/${projeto.id}`);
+  };
+
   return (
-    <article className={`${styles.card} animate__animated animate__fadeInUp`}>
-      <h3 className={styles.title}>{project.titulo}</h3>
+    <div className={`${styles.card} animate__animated animate__fadeInUp`}>
+      <h3 className={styles.title}>{projeto.titulo || 'Sem título'}</h3>
+      
+      {projeto.nomeEmpresa && (
+        <p className={styles.company}>
+          <strong>Empresa:</strong> {projeto.nomeEmpresa}
+        </p>
+      )}
 
-      <p className={styles.meta}>
-        {project.nomeEmpresa || project.nome_empresa}
-      </p>
+      {projeto.descricao && (
+        <p className={styles.description}>{projeto.descricao}</p>
+      )}
 
-      <p className={styles.desc}>{project.descricao}</p>
+      {projeto.status && (
+        <div className={styles.status}>
+          Status: <span className={styles.statusBadge}>{projeto.status}</span>
+        </div>
+      )}
 
-      <div className={styles.footer}>
-        <span>Status: {project.status}</span>
-        <button className="btn primary" onClick={() => onOpen(project.id)}>
+      <div className={styles.actions}>
+        <Button variant="primary" onClick={handleView}>
           Ver
-        </button>
+        </Button>
       </div>
-    </article>
+    </div>
   );
-}
+};
 
-export default React.memo(ProjectCard);
+export default ProjectCard;

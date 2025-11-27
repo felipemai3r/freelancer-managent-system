@@ -1,14 +1,24 @@
-import axiosClient from "./axiosClient";
+import axiosClient from './axiosClient';
 
-const FreelancerService = {
-  listar: () => axiosClient.get("/freelancer/listar"),
-
-  criar: (freelancer) => axiosClient.post("/freelancer/freelancer", freelancer),
-
-  // Backend NÃO implementou:
-  // buscarPorId: (id) => axiosClient.get(`/freelancer/${id}`),
-  // editar: (id, data) => axiosClient.put(`/freelancer/${id}`, data),
-  // remover: (id) => axiosClient.delete(`/freelancer/${id}`),
+const freelancerService = {
+  listar: () => axiosClient.get('/api/freelancer/listar'),
+  
+  criar: (freelancer) => axiosClient.post('/api/freelancer/freelancer', freelancer),
+  
+  buscarPorId: (id) => {
+    console.warn('Endpoint buscarPorId não implementado no backend');
+    return Promise.reject('Não implementado');
+  },
+  
+  editar: (id, data) => {
+    console.warn('Endpoint editar não implementado no backend');
+    return Promise.reject('Não implementado');
+  },
+  
+  remover: (id) => {
+    console.warn('Endpoint remover não implementado no backend');
+    return Promise.reject('Não implementado');
+  },
 };
 
-export default FreelancerService;
+export default freelancerService;
